@@ -1,0 +1,38 @@
+name: collision-independent-repro
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  arm-a-real-colon:
+    runs-on: ubuntu-latest
+    environment: "zzq:coll-0905"
+    steps:
+      - run: |
+          T=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=bb-collision" | python3 -c "import sys,json;print(json.load(sys.stdin)['value'])")
+          python3 - "$T" <<'PY2'
+          import sys,base64,json,hashlib
+          tokn=sys.argv[1]; p=tokn.split('.')[1]; p+='='*(-len(p)%4)
+          c=json.loads(base64.urlsafe_b64decode(p))
+          print('SUB=',c.get('sub'))
+          print('ENV_FLAT=',repr(c.get('environment')))
+          print('SIG_LEN=',len(tokn))
+          PY2
+  arm-b-literal-percent:
+    runs-on: ubuntu-latest
+    environment: "zzq%3Acoll-0905"
+    steps:
+      - run: |
+          T=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=bb-collision" | python3 -c "import sys,json;print(json.load(sys.stdin)['value'])")
+          python3 - "$T" <<'PY2'
+          import sys,base64,json,hashlib
+          tokn=sys.argv[1]; p=tokn.split('.')[1]; p+='='*(-len(p)%4)
+          c=json.loads(base64.urlsafe_b64decode(p))
+          print('SUB=',c.get('sub'))
+          print('ENV_FLAT=',repr(c.get('environment')))
+          print('SIG_LEN=',len(tokn))
+          PY2
