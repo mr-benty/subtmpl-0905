@@ -1,0 +1,40 @@
+name: collision-tuple
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  a-real-colon:
+    runs-on: ubuntu-latest
+    environment: "zzq:coll-0905"
+    steps:
+      - run: |
+          T=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | python3 -c "import sys,json;print(json.load(sys.stdin)['value'])")
+          python3 - "$T" <<'PY2'
+          import sys,base64,json
+          p=sys.argv[1].split('.')[1]; p+='='*(-len(p)%4)
+          c=json.loads(base64.urlsafe_b64decode(p))
+          print('TUPLE_ISS=',c.get('iss'))
+          print('TUPLE_AUD=',c.get('aud'))
+          print('TUPLE_SUB=',c.get('sub'))
+          print('FLAT_ENV=',repr(c.get('environment')))
+          PY2
+  b-literal-percent:
+    runs-on: ubuntu-latest
+    environment: "zzq%3Acoll-0905"
+    steps:
+      - run: |
+          T=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | python3 -c "import sys,json;print(json.load(sys.stdin)['value'])")
+          python3 - "$T" <<'PY2'
+          import sys,base64,json
+          p=sys.argv[1].split('.')[1]; p+='='*(-len(p)%4)
+          c=json.loads(base64.urlsafe_b64decode(p))
+          print('TUPLE_ISS=',c.get('iss'))
+          print('TUPLE_AUD=',c.get('aud'))
+          print('TUPLE_SUB=',c.get('sub'))
+          print('FLAT_ENV=',repr(c.get('environment')))
+          PY2
